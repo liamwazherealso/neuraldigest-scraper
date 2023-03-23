@@ -1,22 +1,21 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project]
-name = "news_ml_scraper"
-version = "0.0.1"
-authors = [
-  { name="Liam Pieri", email="liamwazherealso@gmail.com" },
-]
-description = "Scraper for news ml project"
-readme = "README.md"
-requires-python = ">=3.7"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
-
 [project.urls]
 "Homepage" = "https://github.com/liamwazherealso/news-ml-scraper"
 "Bug Tracker" = "https://github.com/liamwazherealso/news-ml-scraper/issues"
+
+[tool.poetry]
+name = "news-ml-scraper"
+version = "0.0.1"
+description = "Scraper for News ML project"
+authors = ["Liam Pieri <liamwazherealso@gmail.com>"]
+license = "MIT License"
+readme = "README.md"
+packages = [{include = "news_ml_scraper"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+gnews = "^0.2.7"
+newspaper3k = "^0.2.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
