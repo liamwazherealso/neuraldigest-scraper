@@ -8,7 +8,7 @@ import click
 import newspaper
 from dotenv import find_dotenv, load_dotenv
 from gnews import GNews
-from tinydb import Query, TinyDB
+from tinydb import TinyDB
 
 logging.basicConfig(
     format="%(asctime)s - %(message)s",
@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 def get_full_article(url):
     """
-    Download an article from the specified URL, parse it, and return an article object.
+    Download an article from the specified URL, parse it, and return an article
+    object.
      :param url: The URL of the article you wish to summarize.
      :return: An `Article` object returned by the `newspaper` library.
     """
@@ -30,7 +31,8 @@ def get_full_article(url):
     ):  # Top import failed since it's not installed
         print("\nget_full_article() requires the `newspaper` library.")
         print(
-            "You can install it by running `python3 -m pip install newspaper3k` in your shell.\n"
+            """You can install it by running `python3 -m pip install
+            newspaper3k` in your shell.\n"""
         )
         return None
     try:
