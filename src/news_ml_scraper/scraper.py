@@ -3,12 +3,11 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-# -*- coding: utf-8 -*-
+import boto3
 import click
 import newspaper
 from dotenv import find_dotenv, load_dotenv
 from gnews import GNews
-from tinydb import TinyDB
 
 logging.basicConfig(
     format="%(asctime)s - %(message)s",
@@ -16,6 +15,15 @@ logging.basicConfig(
     datefmt="%m/%d/%Y %I:%M:%S %p",
 )
 logger = logging.getLogger(__name__)
+
+
+def s3_put_object(article_date, article_topic, article_title, article_json):
+    s3 = boto3.resource("s3")
+    s3.Bucket("news-ml").put_object(
+        Key=f"""{article_date}/{article_topic}/
+                                    {article_title}""",
+        Body=article_json,
+    )
 
 
 def get_full_article(url):
@@ -59,8 +67,6 @@ def main(output_filepath):
 
     dates = []
 
-    db = TinyDB(output_filepath)
-
     start_date = date(2016, 1, 1)
     # non inclusive
     end_date = date(2022, 6, 2)
@@ -98,7 +104,12 @@ def main(output_filepath):
                 if _full_article:
                     article["text"] = _full_article.text
                     article["topic"] = topic
-                    db.insert(article)
+                    s3_put_object(
+                        article["date"],
+                        article["topic"],
+                        article["title"],
+                        article,
+                    )
 
     logger = logging.getLogger(__name__)
     logger.info("making final data set from raw data")
@@ -114,5 +125,4 @@ if __name__ == "__main__":
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
     load_dotenv(find_dotenv())
-
     main()

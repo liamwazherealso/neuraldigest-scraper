@@ -21,6 +21,46 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "boto3"
+version = "1.26.97"
+description = "The AWS SDK for Python"
+category = "main"
+optional = false
+python-versions = ">= 3.7"
+files = [
+    {file = "boto3-1.26.97-py3-none-any.whl", hash = "sha256:367a73c1ff04517849d8c4177fd775da2e258a3912ff6a497be258c30f509046"},
+    {file = "boto3-1.26.97.tar.gz", hash = "sha256:19762b6a1adbe1963e26b8280211ca148017c970a2e1386312a9fc8a0a17dbd5"},
+]
+
+[package.dependencies]
+botocore = ">=1.29.97,<1.30.0"
+jmespath = ">=0.7.1,<2.0.0"
+s3transfer = ">=0.6.0,<0.7.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+
+[[package]]
+name = "botocore"
+version = "1.29.97"
+description = "Low-level, data-driven core of boto 3."
+category = "main"
+optional = false
+python-versions = ">= 3.7"
+files = [
+    {file = "botocore-1.29.97-py3-none-any.whl", hash = "sha256:0df677eb2bef3ba18ac69e007633559b4426df310eee99df9882437b5faf498a"},
+    {file = "botocore-1.29.97.tar.gz", hash = "sha256:176740221714c0f031c2cd773879df096dbc0f977c63b3e2ed6a956205f02e82"},
+]
+
+[package.dependencies]
+jmespath = ">=0.7.1,<2.0.0"
+python-dateutil = ">=2.1,<3.0.0"
+urllib3 = ">=1.25.4,<1.27"
+
+[package.extras]
+crt = ["awscrt (==0.16.9)"]
+
+[[package]]
 name = "bs4"
 version = "0.0.1"
 description = "Dummy package for Beautiful Soup"
@@ -244,6 +284,18 @@ optional = false
 python-versions = "*"
 files = [
     {file = "jieba3k-0.35.1.zip", hash = "sha256:980a4f2636b778d312518066be90c7697d410dd5a472385f5afced71a2db1c10"},
+]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+description = "JSON Matching Expressions"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
 ]
 
 [[package]]
@@ -861,6 +913,24 @@ requests = ">=1.0.0"
 six = "*"
 
 [[package]]
+name = "s3transfer"
+version = "0.6.0"
+description = "An Amazon S3 Transfer Manager"
+category = "main"
+optional = false
+python-versions = ">= 3.7"
+files = [
+    {file = "s3transfer-0.6.0-py3-none-any.whl", hash = "sha256:06176b74f3a15f61f1b4f25a1fc29a4429040b7647133a463da8fa5bd28d5ecd"},
+    {file = "s3transfer-0.6.0.tar.gz", hash = "sha256:2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"},
+]
+
+[package.dependencies]
+botocore = ">=1.12.36,<2.0a.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
+
+[[package]]
 name = "setuptools"
 version = "67.6.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -1003,4 +1073,4 @@ test = ["covdefaults (>=2.2.2)", "coverage (>=7.1)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e685c5cbbdab4d1cb16aad4d37db5fcc5b4afe6a3a6c72488021380df718675a"
+content-hash = "a8ceb17e0ab562673dc764133202e03e28a9145ec89caea13eb7d38b8bbbdca3"
