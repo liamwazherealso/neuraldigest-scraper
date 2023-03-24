@@ -1,6 +1,7 @@
+import json
 import logging
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import boto3
@@ -19,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 def s3_put_object(article_date, article_topic, article_title, article_json):
     s3 = boto3.resource("s3")
-    s3.Bucket("news-ml").put_object(
+    s3.Bucket("liamwazherealso-news-ml").put_object(
         Key=f"""{article_date}/{article_topic}/
                                     {article_title}""",
-        Body=article_json,
+        Body=json.dumps(article_json),
     )
 
 
@@ -91,6 +92,7 @@ def main():
         "SCIENCE",
         "HEALTH",
     ]
+
     for i in range(len(dates[:-1])):
         google_news.start_date = dates[i]
         google_news.end_date = dates[i + 1]
@@ -100,11 +102,16 @@ def main():
 
             for article in _articles:
                 _full_article = get_full_article(article["url"])
-                if _full_article:
+                if _full_article and hasattr(_full_article, "text"):
                     article["text"] = _full_article.text
                     article["topic"] = topic
+                    article["publisher"] = dict(article["publisher"])
+                    date_str = article["published date"]
+                    format_str = "%a, %d %b %Y %H:%M:%S %Z"
+                    date_obj = datetime.strptime(date_str, format_str)
+                    article["published date"] = date_obj.strftime("%Y-%m-%d")
                     s3_put_object(
-                        article["date"],
+                        article["published date"],
                         article["topic"],
                         article["title"],
                         article,
