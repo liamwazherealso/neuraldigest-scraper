@@ -59,8 +59,7 @@ def daterange(start_date, end_date):
 
 
 @click.command()
-@click.argument("output_filepath", type=click.Path())
-def main(output_filepath):
+def main():
     """Runs data processing scripts to turn raw data from (../raw) into
     cleaned data ready to be analyzed (saved in ../processed).
     """
