@@ -13,9 +13,9 @@ packages = [{include = "news_ml_scraper"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-gnews = "^0.2.7"
 newspaper3k = "^0.2.8"
 boto3 = "^1.26.97"
+gnews = "^0.2.7"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.0"

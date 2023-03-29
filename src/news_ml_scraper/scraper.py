@@ -1,6 +1,8 @@
 import json
 import logging
+import os
 import sys
+from collections.abc import Iterator
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -18,16 +20,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def s3_put_object(article_date, article_topic, article_title, article_json):
+DATE_FMT_STR = "%Y-%m-%d"
+
+
+def s3_put_object(art_date: str, art_topic: str, art_tile: str, art_dict: dict):
     s3 = boto3.resource("s3")
-    s3.Bucket("liamwazherealso-news-ml").put_object(
-        Key=f"""{article_date}/{article_topic}/
-                                    {article_title}""",
-        Body=json.dumps(article_json),
+    s3.Bucket(os.environ["S3_BUCKET"]).put_object(
+        Key=f"""{art_date}/{art_topic}/
+                                    {art_tile}""",
+        Body=json.dumps(art_dict),
     )
+    logging.info(f"""{art_date}/{art_topic}/{art_tile}""")
 
 
-def get_full_article(url):
+def get_full_article(url: str):
     """
     Download an article from the specified URL, parse it, and return an article
     object.
@@ -54,24 +60,15 @@ def get_full_article(url):
     return article
 
 
-def daterange(start_date, end_date):
+def daterange(start_date: date, end_date: date) -> Iterator[date]:
     for n in range(int((end_date - start_date).days)):
-        yield start_date + timedelta(n)
+        yield (start_date + timedelta(n)).strftime(DATE_FMT_STR)
 
 
-@click.command()
-def main():
+def get_articles_for_date_range(date_range: Iterator[date]):
     """Runs data processing scripts to turn raw data from (../raw) into
     cleaned data ready to be analyzed (saved in ../processed).
     """
-
-    dates = []
-
-    start_date = date(2016, 1, 1)
-    # non inclusive
-    end_date = date(2022, 6, 2)
-    for single_date in daterange(start_date, end_date):
-        dates.append((single_date.year, single_date.month, single_date.day))
 
     google_news = GNews()
 
@@ -93,23 +90,35 @@ def main():
         "HEALTH",
     ]
 
-    for i in range(len(dates[:-1])):
-        google_news.start_date = dates[i]
-        google_news.end_date = dates[i + 1]
+    for _date in date_range:
+        logging.info("Date to gather: %s", _date)
 
         for topic in topics:
             _articles = google_news.get_news_by_topic(topic)
 
             for article in _articles:
+                date_str = article["published date"]
+                format_str = "%a, %d %b %Y %H:%M:%S %Z"
+                date_obj = datetime.strptime(date_str, format_str)
+                article["published date"] = date_obj.strftime(DATE_FMT_STR)
+
+                # A current (03/29/2023) limitation of the GNews library is that
+                # it cannot filter by date for the "get_news_by_topic" method.
+                # This is a workaround to filter by date.
+
+                if article["published date"] != _date:
+                    logging.warning(
+                        f"Article date is not in date range: date expected \
+                            {_date}, date for article \
+                                {article['published date']}"
+                    )
+                    continue
+
                 _full_article = get_full_article(article["url"])
                 if _full_article and hasattr(_full_article, "text"):
                     article["text"] = _full_article.text
                     article["topic"] = topic
                     article["publisher"] = dict(article["publisher"])
-                    date_str = article["published date"]
-                    format_str = "%a, %d %b %Y %H:%M:%S %Z"
-                    date_obj = datetime.strptime(date_str, format_str)
-                    article["published date"] = date_obj.strftime("%Y-%m-%d")
                     s3_put_object(
                         article["published date"],
                         article["topic"],
@@ -119,6 +128,15 @@ def main():
 
     logger = logging.getLogger(__name__)
     logger.info("making final data set from raw data")
+
+
+@click.command()
+def main():
+    start_date = datetime.strptime(os.environ["START_DATE"], DATE_FMT_STR)
+    end_date = datetime.now()
+    date_range = daterange(start_date, end_date)
+
+    get_articles_for_date_range(date_range)
 
 
 if __name__ == "__main__":
