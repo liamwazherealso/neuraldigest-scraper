@@ -21,15 +21,15 @@ config = {}
 
 
 def s3_put_object(
-    art_date: str, art_topic: str, art_tile: str, art_dict: dict
+    art_date: str, art_topic: str, art_title: str, art_dict: dict
 ):
     s3 = boto3.resource("s3")
+    s3_path = f"{art_date}/{art_topic}/{art_title}"
     s3.Bucket(config["S3_BUCKET"]).put_object(
-        Key=f"""{art_date}/{art_topic}/
-                                    {art_tile}""",
+        Key=s3_path,
         Body=json.dumps(art_dict),
     )
-    logging.info(f"""{art_date}/{art_topic}/{art_tile}""")
+    logging.info(s3_path)
 
 
 def get_full_article(url: str):
@@ -63,6 +63,9 @@ def daterange(start_date: date, end_date: date) -> Iterator[date]:
     for n in range(int((end_date - start_date).days)):
         yield (start_date + timedelta(n)).strftime(DATE_FMT_STR)
 
+
+def clean_article_title(title: str) -> str:
+    return title.strip().replace("/", "-") + '.json'
 
 def get_articles_for_date_range(date_range: Iterator[date]):
     """Runs data processing scripts to turn raw data from (../raw) into
@@ -118,6 +121,7 @@ def get_articles_for_date_range(date_range: Iterator[date]):
                     article["text"] = _full_article.text
                     article["topic"] = topic
                     article["publisher"] = dict(article["publisher"])
+                    article["title"] = clean_article_title(article["title"])
                     s3_put_object(
                         article["published date"],
                         article["topic"],
